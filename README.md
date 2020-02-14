@@ -19,5 +19,5 @@ This class defines the structure of the Azure CosmosDB document.
 **ContosoLicenseImageUploadProcess.pdf**  
 This diagram outlines the workflow process for how uploaded license plate images are processed.
 
-**ContosoLicenseImageUploadProcess.pdf**
+**ContosoLicenseRecordProcessingProcess.pdf**  
 This diagram outlines the workflow process for the Azure Logic App to process recognized plate records. 
