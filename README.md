@@ -8,7 +8,7 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE
 
 # Contoso License Demo
-This repository contains demo code to process uploaded license plates usi9ng Azure Functions, Azure Cognitive Services, Azure Cosmos DB, and Azure Logic Apps. 
+This repository contains demo code to process uploaded license plates using Azure Functions, Azure Cognitive Services, Azure Cosmos DB, and Azure Logic Apps. 
 
 **ProcessUploadFuncton.cs**
 This Azure Function uses Azure Cognitive Service Vision API to processes uploaded images to a storage account. If the image contains text, the information is entered into an Azure ComsosDB instance. 
