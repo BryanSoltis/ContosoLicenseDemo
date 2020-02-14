@@ -70,7 +70,7 @@ namespace ContosoLicenseFunctions
                             Container container = cosmosdbclient.GetContainer("[Azure CosmosDB database name]", "[Azure CosmosDB container name]");
                             if (container != null)
                             {
-                                ItemResponse<[Azure CosmosDB document class]> response = await container.CreateItemAsync(item, new PartitionKey(item.Id));
+                                ItemResponse<LecnseRecord> response = await container.CreateItemAsync(item, new PartitionKey(item.Id));
                                 blnSuccess = true;
                             }
                         }
