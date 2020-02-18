@@ -21,3 +21,12 @@ This diagram outlines the workflow process for how uploaded license plate images
 
 **ContosoLicenseRecordProcessingProcess.pdf**  
 This diagram outlines the workflow process for the Azure Logic App to process recognized plate records. 
+
+**Azure Logic App**
+This solution continas an Azure Logic App that processes the recognized plate records on a schedule based.  
+/images/LogicApp1.png  
+  
+/images/LogicApp2.png  
+  
+/images/LogicApp3.png
+
