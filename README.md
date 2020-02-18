@@ -25,10 +25,13 @@ This diagram outlines the workflow process for the Azure Logic App to process re
 **Azure Logic App**
 This solution continas an Azure Logic App that processes the recognized plate records on a schedule based.  
 
+**Logic App 1**
 ![Logic App 1](https://github.com/BryanSoltis/ContosoLicenseDemo/blob/master/images/LogicApp1.png?raw=true)  
   
+**Logic App 2**
 ![Logic App 2](https://github.com/BryanSoltis/ContosoLicenseDemo/blob/master/images/LogicApp2.png?raw=true)  
-    
+
+**Logic App 3**
 ![Logic App 3](https://github.com/BryanSoltis/ContosoLicenseDemo/blob/master/images/LogicApp3.png?raw=true)  
 
 
