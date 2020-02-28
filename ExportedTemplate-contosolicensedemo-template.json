@@ -1,0 +1,265 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workflows_contosolicensedemologicapp_name": {
+            "defaultValue": "contosolicensedemologicapp",
+            "type": "String"
+        },
+        "connections_azureblob_externalid": {
+            "defaultValue": "/subscriptions/b8501911-fd25-4e51-9d22-296c551c0cc3/resourceGroups/contosolicensedemo/providers/Microsoft.Web/connections/azureblob",
+            "type": "String"
+        },
+        "connections_documentdb_externalid": {
+            "defaultValue": "/subscriptions/b8501911-fd25-4e51-9d22-296c551c0cc3/resourceGroups/contosolicensedemo/providers/Microsoft.Web/connections/documentdb",
+            "type": "String"
+        },
+        "connections_outlook_externalid": {
+            "defaultValue": "/subscriptions/b8501911-fd25-4e51-9d22-296c551c0cc3/resourceGroups/contosolicensedemo/providers/Microsoft.Web/connections/outlook",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('workflows_contosolicensedemologicapp_name')]",
+            "location": "eastus2",
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        }
+                    },
+                    "triggers": {
+                        "Recurrence": {
+                            "recurrence": {
+                                "frequency": "Month",
+                                "interval": 1
+                            },
+                            "type": "Recurrence"
+                        }
+                    },
+                    "actions": {
+                        "Condition": {
+                            "actions": {
+                                "Create_CSV_table": {
+                                    "runAfter": {},
+                                    "type": "Table",
+                                    "inputs": {
+                                        "columns": [
+                                            {
+                                                "value": "@item()"
+                                            }
+                                        ],
+                                        "format": "CSV",
+                                        "from": "@body('Query_documents')?['Documents']"
+                                    }
+                                },
+                                "Create_blob": {
+                                    "runAfter": {
+                                        "Create_CSV_table": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "ApiConnection",
+                                    "inputs": {
+                                        "body": "@body('Create_CSV_table')",
+                                        "host": {
+                                            "connection": {
+                                                "name": "@parameters('$connections')['azureblob']['connectionId']"
+                                            }
+                                        },
+                                        "method": "post",
+                                        "path": "/datasets/default/files",
+                                        "queries": {
+                                            "folderPath": "/financeprocess",
+                                            "name": "@{utcNow()}-financeprocessrecords.csv",
+                                            "queryParametersSingleEncoded": true
+                                        }
+                                    },
+                                    "runtimeConfiguration": {
+                                        "contentTransfer": {
+                                            "transferMode": "Chunked"
+                                        }
+                                    }
+                                },
+                                "For_each": {
+                                    "foreach": "@body('Query_documents')?['Documents']",
+                                    "actions": {
+                                        "Create_or_update_document": {
+                                            "runAfter": {
+                                                "Parse_JSON": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "ApiConnection",
+                                            "inputs": {
+                                                "body": {
+                                                    "datecaptured": "@{body('Parse_JSON')?['datecaptured']}",
+                                                    "dateprocessed": "@{utcNow()}",
+                                                    "id": "@{body('Parse_JSON')?['id']}",
+                                                    "isprocessed": true,
+                                                    "location": "@{body('Parse_JSON')?['location']}",
+                                                    "photourl": "@{body('Parse_JSON')?['photourl']}",
+                                                    "platenumber": "@{body('Parse_JSON')?['platenumber']}"
+                                                },
+                                                "headers": {
+                                                    "x-ms-documentdb-is-upsert": true,
+                                                    "x-ms-documentdb-raw-partitionkey": "\"@{body('Parse_JSON')?['id']}\""
+                                                },
+                                                "host": {
+                                                    "connection": {
+                                                        "name": "@parameters('$connections')['documentdb']['connectionId']"
+                                                    }
+                                                },
+                                                "method": "post",
+                                                "path": "/dbs/@{encodeURIComponent('ToDoList')}/colls/@{encodeURIComponent('LicenseRecords')}/docs"
+                                            }
+                                        },
+                                        "Parse_JSON": {
+                                            "runAfter": {},
+                                            "type": "ParseJson",
+                                            "inputs": {
+                                                "content": "@items('For_each')",
+                                                "schema": {
+                                                    "properties": {
+                                                        "_attachments": {
+                                                            "type": "string"
+                                                        },
+                                                        "_etag": {
+                                                            "type": "string"
+                                                        },
+                                                        "_rid": {
+                                                            "type": "string"
+                                                        },
+                                                        "_self": {
+                                                            "type": "string"
+                                                        },
+                                                        "_ts": {
+                                                            "type": "integer"
+                                                        },
+                                                        "datecaptured": {
+                                                            "type": "string"
+                                                        },
+                                                        "dateprocessed": {
+                                                            "type": "string"
+                                                        },
+                                                        "id": {
+                                                            "type": "string"
+                                                        },
+                                                        "isprocessed": {
+                                                            "type": "boolean"
+                                                        },
+                                                        "location": {
+                                                            "type": "string"
+                                                        },
+                                                        "photourl": {
+                                                            "type": "string"
+                                                        },
+                                                        "platenumber": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "runAfter": {
+                                        "Create_blob": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Foreach"
+                                }
+                            },
+                            "runAfter": {
+                                "Query_documents": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "else": {
+                                "actions": {
+                                    "Send_an_email_(V2)": {
+                                        "runAfter": {},
+                                        "type": "ApiConnection",
+                                        "inputs": {
+                                            "body": {
+                                                "Body": "<p>No records processed!!</p>",
+                                                "Subject": "Contoso License Demo Process Report",
+                                                "To": "bsoltis-ms@outlook.com"
+                                            },
+                                            "host": {
+                                                "connection": {
+                                                    "name": "@parameters('$connections')['outlook']['connectionId']"
+                                                }
+                                            },
+                                            "method": "post",
+                                            "path": "/v2/Mail"
+                                        }
+                                    }
+                                }
+                            },
+                            "expression": {
+                                "and": [
+                                    {
+                                        "greater": [
+                                            "@body('Query_documents')?['_count']",
+                                            0
+                                        ]
+                                    }
+                                ]
+                            },
+                            "type": "If"
+                        },
+                        "Query_documents": {
+                            "runAfter": {},
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "body": {
+                                    "query": "SELECT * FROM LicenseRecords l WHERE l.isprocessed = false"
+                                },
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['documentdb']['connectionId']"
+                                    }
+                                },
+                                "method": "post",
+                                "path": "/dbs/@{encodeURIComponent('ToDoList')}/colls/@{encodeURIComponent('LicenseRecords')}/query"
+                            }
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "azureblob": {
+                                "connectionId": "[parameters('connections_azureblob_externalid')]",
+                                "connectionName": "azureblob",
+                                "id": "/subscriptions/b8501911-fd25-4e51-9d22-296c551c0cc3/providers/Microsoft.Web/locations/eastus2/managedApis/azureblob"
+                            },
+                            "documentdb": {
+                                "connectionId": "[parameters('connections_documentdb_externalid')]",
+                                "connectionName": "documentdb",
+                                "id": "/subscriptions/b8501911-fd25-4e51-9d22-296c551c0cc3/providers/Microsoft.Web/locations/eastus2/managedApis/documentdb"
+                            },
+                            "outlook": {
+                                "connectionId": "[parameters('connections_outlook_externalid')]",
+                                "connectionName": "outlook",
+                                "id": "/subscriptions/b8501911-fd25-4e51-9d22-296c551c0cc3/providers/Microsoft.Web/locations/eastus2/managedApis/outlook"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}
