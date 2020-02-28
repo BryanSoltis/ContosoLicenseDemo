@@ -34,4 +34,8 @@ This solution continas an Azure Logic App that processes the recognized plate re
 **Logic App 3**
 ![Logic App 3](https://github.com/BryanSoltis/ContosoLicenseDemo/blob/master/images/LogicApp3.png?raw=true)  
 
+**ExportedTemplate-contosolicensedemo-template.json**  
+This file is the exported logic app template. 
 
+**ExportedTemplate-contosolicensedemo-parameters.json**  
+This file contains the parameters for the exported Logic App template. 
